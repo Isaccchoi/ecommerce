@@ -1,5 +1,6 @@
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.db.models.signals import post_save
 
 # Create your models here.
 
@@ -52,3 +53,17 @@ class Variation(models.Model):
 
 	def get_absolute_url(self):
 		return self.product.get_absolute_url()
+
+
+def product_saved_receiver(sender, instance, created, *args, **kwargs):
+	print sender
+	product = instance
+	variations = product.variation_set.all()
+	if variations.count() == 0:
+		new_var = Variation()
+		new_var.product = product
+		new_var.title = "Default"
+		new_var.price = product.price
+		new_var.save()
+
+post_save.connect(product_saved_receiver, sender=Product)
