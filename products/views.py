@@ -8,10 +8,12 @@ from django.utils import timezone
 
 # Create your views here.
 from .forms import VariationInventoryFormSet
+from .mixins import StaffRequiredMixin
+from .mixins import LoginRequiredMixin
 from .models import Product, Variation
 
 
-class VariationListView(ListView):
+class VariationListView(StaffRequiredMixin, ListView):
     model = Variation
     queryset = Variation.objects.all()
 
@@ -28,18 +30,17 @@ class VariationListView(ListView):
         return queryset
 
     def post(self, request, *args, **kwargs):
-
         formset = VariationInventoryFormSet(request.POST, request.FILES)
-        print request.POST
         if formset.is_valid():
             formset.save(commit=False)
             for form in formset:
                 new_item = form.save(commit=False)
-                product_pk = self.kwargs.get("pk")
-                product = get_object_or_404(Product, pk=product_pk)
-                new_item.product = product
-                new_item.save()
-                
+                if new_item.title:
+                    product_pk = self.kwargs.get("pk")
+                    product = get_object_or_404(Product, pk=product_pk)
+                    new_item.product = product
+                    new_item.save()
+
             messages.success(request, "Your inventory and pricing has been updated.")
             return redirect("products")
         raise Http404

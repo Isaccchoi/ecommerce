@@ -23,9 +23,8 @@ class Product(models.Model):
 	description = models.TextField(blank=True, null=True)
 	price = models.DecimalField(decimal_places=2, max_digits=20)
 	active = models.BooleanField(default=True)
-	#slug
-	#inventory
-
+	categories = models.ManyToManyField("Category", blank=True)
+	default = models.ForeignKey("Category", related_name='default_category', null=True, blank=True)
 	objects = ProductManager()
 
 	def __unicode__(self): # def __str__(self):
@@ -72,11 +71,10 @@ post_save.connect(product_saved_receiver, sender=Product)
 
 def image_upload_to(instance, filename):
 	title = instance.product.title
-	slug = slugify(title)
+	slug = slugify_unicode(title)
 	basename, file_extension = filename.split(".")
 	new_filename = "%s-%s.%s"%(slug, instance.id, file_extension)
 	return "products/%s/%s" %(slug, new_filename)
-
 
 
 class ProductImage(models.Model):
@@ -85,3 +83,14 @@ class ProductImage(models.Model):
 
 	def __unicode__(self):
 		return self.product.title
+
+
+class Category(models.Model):
+	title = models.CharField(max_length=120, unique=True)
+	slug = models.SlugField(unique=True)
+	description = models.TextField(null=True, blank=True)
+	active = models.BooleanField(default=True)
+	timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
+
+	def __unicode__(self):
+		return self.title

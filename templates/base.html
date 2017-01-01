@@ -26,6 +26,17 @@
   <body>
   {% include 'navbar.html' %}
 
+{% if messages %}
+
+<div class="container">
+<div class="alert alert-success text-center alert-dismissable">
+    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+{% for message in messages %}
+    <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+{% endfor %}
+</div>
+{% endif %}
+
 {% block jumbotron %}
 
             {% endblock %}
@@ -42,6 +53,12 @@
 
     {% include "javascript.html" %}
 
+    <script>
+    $(document).ready(function(){
+        {% block jquery %}
+        {% endblock %}
+    });
+    </script>
 
   </body>
 </html>
