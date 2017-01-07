@@ -17,6 +17,12 @@ class ProductManager(models.Manager):
 	def all(self, *args, **kwargs):
 		return self.get_queryset().active()
 
+	def get_related(self, instance):
+		products_one = self.get_queryset().filter(categories__in=instance.categories.all())
+		products_two = self.get_queryset().filter(default=instance.default)
+		qs = (products_one | products_two).exclude(id=instance.id).distinct()
+		return qs
+
 
 class Product(models.Model):
 	title = models.CharField(max_length=120)
@@ -32,6 +38,12 @@ class Product(models.Model):
 
 	def get_absolute_url(self):
 		return reverse("product_detail", kwargs={"pk": self.pk})
+
+	def get_image_url(self):
+		img = self.productimage_set.first()
+		if img:
+			return img.image.url
+		return img
 
 
 class Variation(models.Model):
@@ -71,7 +83,7 @@ post_save.connect(product_saved_receiver, sender=Product)
 
 def image_upload_to(instance, filename):
 	title = instance.product.title
-	slug = slugify_unicode(title)
+	slug = slugify(title)
 	basename, file_extension = filename.split(".")
 	new_filename = "%s-%s.%s"%(slug, instance.id, file_extension)
 	return "products/%s/%s" %(slug, new_filename)
@@ -94,3 +106,6 @@ class Category(models.Model):
 
 	def __unicode__(self):
 		return self.title
+
+	def get_absolute_url(self):
+		return reverse("category_detail", kwargs={"slug": self.slug})

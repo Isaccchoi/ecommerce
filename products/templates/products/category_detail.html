@@ -1,11 +1,13 @@
 {% extends "base.html" %}
 
+
 {% block content %}
 
-<h1>All Products <small><a href='{% url "categories" %}'>Categories</a></small></h1>
+
+<h3>{{ object }}</h3>
 
 <div class='row'>
-{% for product in object_list %}
+{% for product in products %}
 
 
 <div class='col-xs-4'>
