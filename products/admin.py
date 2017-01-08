@@ -7,9 +7,30 @@ from .models import ProductImage
 from .models import Category
 from .models import ProductFeatured
 
-admin.site.register(Product)
 
-admin.site.register(Variation)
+class ProductImageInline(admin.TabularInline):
+    model = ProductImage
+    extra = 0
+
+
+class VariationInline(admin.TabularInline):
+    model = Variation
+    extra = 0
+
+
+class ProductAdmin(admin.ModelAdmin):
+    list_display = ['__unicode__', 'price', ]
+    inlines = [
+        VariationInline,
+        ProductImageInline,
+    ]
+    class Meta:
+        model = Product
+
+
+admin.site.register(Product, ProductAdmin)
+
+#admin.site.register(Variation)
 
 admin.site.register(ProductImage)
 
