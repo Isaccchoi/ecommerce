@@ -2,16 +2,20 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.shortcuts import render
 
+from products.models import ProductFeatured
 from .forms import ContactForm, SignUpForm
 from .models import SignUp
 
 # Create your views here.
 def home(request):
 	title = 'Sign Up Now'
+
+	featured_image = ProductFeatured.objects.filter(active=True).order_by("?").first()
 	form = SignUpForm(request.POST or None)
 	context = {
 		"title": title,
-		"form": form
+		"form": form,
+		"featured_image": featured_image,
 	}
 	if form.is_valid():
 		#form.save()
@@ -62,17 +66,17 @@ def contact(request):
 		subject = 'Site contact form'
 		from_email = settings.EMAIL_HOST_USER
 		to_email = [from_email, 'youotheremail@email.com']
-		contact_message = "%s: %s via %s"%( 
-				form_full_name, 
-				form_message, 
+		contact_message = "%s: %s via %s"%(
+				form_full_name,
+				form_message,
 				form_email)
 		some_html_message = """
 		<h1>hello</h1>
 		"""
-		send_mail(subject, 
-				contact_message, 
-				from_email, 
-				to_email, 
+		send_mail(subject,
+				contact_message,
+				from_email,
+				to_email,
 				html_message=some_html_message,
 				fail_silently=True)
 
@@ -82,19 +86,3 @@ def contact(request):
 		"title_align_center": title_align_center,
 	}
 	return render(request, "forms.html", context)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

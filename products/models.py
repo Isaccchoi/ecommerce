@@ -135,8 +135,10 @@ class ProductFeatured(models.Model):
 	image = models.ImageField(upload_to=image_upload_to_featured)
 	title = models.CharField(max_length=120, null=True, blank=True)
 	text = models.CharField(max_length=220, null=True, blank=True)
+	text_css_color = models.CharField(max_length=6, null=True, blank=True)
 	text_right = models.BooleanField(default=False)
 	show_price = models.BooleanField(default=False)
+	make_image_background = models.BooleanField(default=False)
 	active = models.BooleanField(default=True)
 
 	def __unicode__(self):
