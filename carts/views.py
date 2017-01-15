@@ -1,11 +1,14 @@
+from django.contrib.auth.forms import AuthenticationForm
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.http import Http404
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect
 from django.views.generic.base import View
 from django.views.generic.detail import SingleObjectMixin
+from django.views.generic.detail import DetailView
 
 
 # Create your views here.
@@ -121,3 +124,26 @@ class CartView(SingleObjectMixin, View):
         }
         template = self.template_name
         return render(request, template, context)
+
+
+class CheckoutView(DetailView):
+    model = Cart
+    template_name = "carts/checkout_view.html"
+
+    def get_object(self, *args, **kwargs):
+        cart_id = self.request.session.get("cart_id")
+        if cart_id == None:
+            return redirect("cart")
+        cart = Cart.objects.get(id=cart_id)
+        return cart
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(CheckoutView, self).get_context_data(*args, **kwargs)
+        user_can_continue = False
+        if not self.request.user.is_authenticated(): # or if request.user.is_guest:
+            context["login_form"] = AuthenticationForm()
+            context["next_url"] = self.request.build_absolute_uri()
+        if self.request.user.is_authenticated(): # of if not request.user.is_guest:
+            user_can_continue = True
+        context["user_can_continue"] = user_can_continue  
+        return context
