@@ -6,6 +6,7 @@ from django.contrib import admin
 from carts.views import CartView
 from carts.views import ItemCountView
 from carts.views import CheckoutView
+from carts.views import CheckoutFinalView
 from orders.views import AddressSelectFormView
 from orders.views import UserAddressCreateView
 
@@ -25,6 +26,7 @@ urlpatterns = [
     url(r'^checkout/$', CheckoutView.as_view(), name='checkout'),
     url(r'^checkout/address/$', AddressSelectFormView.as_view(), name='order_address'),
     url(r'^checkout/address/add/$', UserAddressCreateView.as_view(), name='user_address_create'),
+    url(r'^checkout/final/$', CheckoutFinalView.as_view(), name='checkout_final'),
 ]
 
 if settings.DEBUG:

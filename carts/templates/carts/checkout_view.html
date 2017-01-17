@@ -64,9 +64,13 @@ Order Summary</p>
     </p>
     <p><a href='{% url "order_address" %}'>Change and Address</a></p>
     <br/>
+
+    <form method="POST" action="{% url 'checkout_final' %}">{% csrf_token %}
+    <input type="hidden" name='payment_token' value="ABC" />
     <p>
-        <strong>Complete Order</strong>
+        <strong><button type="submit">Complete Order</button></strong>
     </p>
+</form>
 
 </div>
 {% endif %}
