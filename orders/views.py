@@ -1,15 +1,49 @@
 from django.contrib import messages
+from django.http import Http404
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.views.generic.edit import FormView
 from django.views.generic.edit import CreateView
+from django.views.generic.list import ListView
+from django.views.generic.detail import DetailView
 # Create your views here.
 
 from .forms import AddressForm
 from .forms import UserAddressForm
 from .mixins import CartOrderMixin
+from .mixins import LoginRequiredMixin
 from .models import UserAddress
 from .models import UserCheckout
+from .models import Order
+
+
+class OrderDetail(DetailView):
+	model = Order
+
+	def dispatch(self, request, *args, **kwargs):
+		try:
+			user_check_id = self.request.session.get("user_checkout_id")
+			user_checkout = UserCheckout.objects.get(id=user_check_id)
+		except UserCheckout.DoesNotExist:
+			user_checkout = UserCheckout.objects.get(user=request.user)
+		except:
+			user_checkout = None
+
+		obj = self.get_object()
+		if obj.user == user_checkout and user_checkout is not None:
+			return super(OrderDetail, self).dispatch(request, *args, **kwargs)
+		else:
+			raise Http404
+
+
+
+class OrderList(ListView):
+	queryset = Order.objects.all()
+
+	def get_queryset(self):
+		user_check_id = self.request.session.get("user_checkout_id")
+		user_checkout = UserCheckout.objects.get(id=user_check_id)
+		return super(OrderList, self).get_queryset().filter(user=user_checkout)
 
 
 class UserAddressCreateView(CreateView):
